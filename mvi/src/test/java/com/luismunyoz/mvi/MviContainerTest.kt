@@ -20,10 +20,10 @@ internal class MviContainerTest : CoroutineTest {
     override lateinit var testDispatcher: TestDispatcher
 
     private val initialState = TestViewState.create()
-    private val intentProcessor = TestIntentProcessor()
+    private val intentProcessor = TestActor()
     private val stateMapper = TestStateMapper(initialState)
     private val effectProducer = TestEffectProducer()
-    private lateinit var mviContainer: MviContainer<TestViewState, TestSideEffect, TestUserIntent, TestUserIntentAction>
+    private lateinit var mviContainer: MviContainer<TestViewState, TestSideEffect, TestUserIntent, TestAction>
 
     @BeforeEach
     fun setup() {
@@ -66,7 +66,7 @@ internal class MviContainerTest : CoroutineTest {
     fun `new action is sent to state mapper`() =
         runTest {
             // Given
-            val action = TestUserIntentAction()
+            val action = TestAction()
             intentProcessor.configure(flowOf(action))
 
             // When
@@ -80,7 +80,7 @@ internal class MviContainerTest : CoroutineTest {
     fun `new action is sent to effect producer`() =
         runTest {
             // Given
-            val action = TestUserIntentAction()
+            val action = TestAction()
             intentProcessor.configure(flowOf(action))
 
             // When
@@ -94,7 +94,7 @@ internal class MviContainerTest : CoroutineTest {
     fun `new view state is pushed properly`() =
         runTest {
             // Given
-            val action = TestUserIntentAction()
+            val action = TestAction()
             val expectedViewState = TestViewState.create()
             intentProcessor.configure(flowOf(action))
             stateMapper.configure(expectedViewState)
@@ -110,7 +110,7 @@ internal class MviContainerTest : CoroutineTest {
     fun `new side effect is pushed properly`() =
         runTest {
             // Given
-            val action = TestUserIntentAction()
+            val action = TestAction()
             val expectedSideEffect = TestSideEffect()
             intentProcessor.configure(flowOf(action))
             effectProducer.configure(expectedSideEffect)
@@ -124,7 +124,7 @@ internal class MviContainerTest : CoroutineTest {
 
     private class TestUserIntent : UserIntent
 
-    private class TestUserIntentAction : UserIntentAction
+    private class TestAction : Action
 
     private data class TestViewState(
         val ordinal: Int,
@@ -138,16 +138,16 @@ internal class MviContainerTest : CoroutineTest {
 
     private class TestSideEffect : SideEffect
 
-    private class TestIntentProcessor : IntentProcessor<TestUserIntent, TestUserIntentAction> {
+    private class TestActor : Actor<TestUserIntent, TestAction> {
         private var lastIntentReceived: TestUserIntent? = null
-        private var responseFlow: Flow<TestUserIntentAction> = flowOf(TestUserIntentAction())
+        private var responseFlow: Flow<TestAction> = flowOf(TestAction())
 
-        override suspend fun invoke(intent: TestUserIntent): Flow<TestUserIntentAction> {
+        override suspend fun invoke(intent: TestUserIntent): Flow<TestAction> {
             lastIntentReceived = intent
             return responseFlow
         }
 
-        fun configure(responseFlow: Flow<TestUserIntentAction>) {
+        fun configure(responseFlow: Flow<TestAction>) {
             this.responseFlow = responseFlow
         }
 
@@ -158,13 +158,13 @@ internal class MviContainerTest : CoroutineTest {
 
     private class TestStateMapper(
         initialState: TestViewState,
-    ) : StateMapper<TestUserIntentAction, TestViewState> {
+    ) : StateMapper<TestAction, TestViewState> {
         private var lastUiStateReceived: TestViewState? = null
-        private var userIntentActionReceived: TestUserIntentAction? = null
+        private var userIntentActionReceived: TestAction? = null
         private var returnState: TestViewState = initialState
 
         override fun invoke(
-            action: TestUserIntentAction,
+            action: TestAction,
             lastUiState: TestViewState,
         ): TestViewState {
             lastUiStateReceived = lastUiState
@@ -178,7 +178,7 @@ internal class MviContainerTest : CoroutineTest {
 
         fun verify(
             lastUiState: TestViewState,
-            lastIntent: TestUserIntentAction,
+            lastIntent: TestAction,
         ) {
             assertEquals(lastUiState, lastUiStateReceived)
             assertEquals(lastIntent, userIntentActionReceived)
@@ -187,13 +187,13 @@ internal class MviContainerTest : CoroutineTest {
 
     private class TestEffectProducer(
         sideEffect: TestSideEffect? = null,
-    ) : EffectProducer<TestUserIntentAction, TestViewState, TestSideEffect> {
+    ) : EffectProducer<TestAction, TestViewState, TestSideEffect> {
         private var returnSideEffect: TestSideEffect? = sideEffect
-        private var lastActionReceived: TestUserIntentAction? = null
+        private var lastActionReceived: TestAction? = null
         private var lastUiStateReceived: TestViewState? = null
 
         override fun invoke(
-            action: TestUserIntentAction,
+            action: TestAction,
             uiState: TestViewState,
         ): TestSideEffect? {
             lastActionReceived = action
@@ -207,7 +207,7 @@ internal class MviContainerTest : CoroutineTest {
 
         fun verify(
             uiState: TestViewState,
-            action: TestUserIntentAction,
+            action: TestAction,
         ) {
             assertEquals(action, lastActionReceived)
             assertEquals(uiState, lastUiStateReceived)

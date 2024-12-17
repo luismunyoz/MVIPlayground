@@ -18,7 +18,7 @@ interface SideEffect
 /**
  * Represents the intention of the user to perform an action. Every action from the user that has
  * a change in the state of the application must have an equivalent [UserIntent]. This UserIntent
- * will be delivered to the library from the View and the library will deliver the resulting [UserIntentAction]
+ * will be delivered to the library from the View and the library will deliver the resulting [Action]
  * change as a [ViewState] that the View can process and render.
  */
 interface UserIntent
@@ -28,4 +28,4 @@ interface UserIntent
  * the transformations that needs to be applied to the [ViewState] and/or the [SideEffect] in order
  * to reflect the intent that the user has executed.
  */
-interface UserIntentAction
+interface Action

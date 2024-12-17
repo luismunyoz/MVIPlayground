@@ -1,12 +1,12 @@
 package com.luismunyoz.mvi
 
 /**
- * Given a [UserIntentAction] and the last [ViewState] ever rendered, the responsibility of this class
+ * Given a [Action] and the last [ViewState] ever rendered, the responsibility of this class
  * is to produce a new mapped [ViewState] that will be delivered to the view.
  */
-interface StateMapper<Action : UserIntentAction, UiState : ViewState> {
+interface StateMapper<Action : com.luismunyoz.mvi.Action, UiState : ViewState> {
     /**
-     * Maps the provided [UserIntentAction] to a [ViewState] taking into consideration the current
+     * Maps the provided [Action] to a [ViewState] taking into consideration the current
      * state of the UI, producing a new [ViewState] or the same [ViewState] feed to the method
      * depending on whether the UI needs to be updated or not.
      *

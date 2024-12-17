@@ -4,7 +4,7 @@ package com.luismunyoz.mvi
  * Given a [Action] and the last [UiState] ever rendered, it is responsibility of this class
  * to produce a new [SideEffect] (or not) that will be delivered to the View.
  */
-interface EffectProducer<Action : UserIntentAction, UiState : ViewState, Effect : SideEffect> {
+interface EffectProducer<Action : com.luismunyoz.mvi.Action, UiState : ViewState, Effect : SideEffect> {
     /**
      * Produces a new [SideEffect] taking into account the new state of the UI and the
      * [Action] of a user intention.

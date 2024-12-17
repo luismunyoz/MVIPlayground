@@ -25,9 +25,9 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("LongParameterList")
-class MviContainer<UiState : ViewState, Effect : SideEffect, Intent : UserIntent, Action : UserIntentAction>(
+class MviContainer<UiState : ViewState, Effect : SideEffect, Intent : UserIntent, Action : com.luismunyoz.mvi.Action>(
     private val coroutineScope: CoroutineScope,
-    private val intentProcessor: IntentProcessor<Intent, Action>,
+    private val actor: Actor<Intent, Action>,
     private val stateMapper: StateMapper<Action, UiState>,
     private val effectProducer: EffectProducer<Action, UiState, Effect>,
     processDispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -45,7 +45,7 @@ class MviContainer<UiState : ViewState, Effect : SideEffect, Intent : UserIntent
     init {
         intents
             .onEach { intent -> Log.v(LOG_TAG, "(1) Start Processing User Intent = $intent") }
-            .flatMapMerge { intent -> intentProcessor(intent) }
+            .flatMapMerge { intent -> actor(intent) }
             .onEach { intentAction ->
                 plugins.forEach {
                     it.onUserIntentAction(intentAction)
