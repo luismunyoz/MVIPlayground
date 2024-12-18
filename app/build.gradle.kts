@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.luismunyoz.mviplayground"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.luismunyoz.mviplayground"
@@ -41,6 +42,12 @@ android {
     }
     tasks.withType<Test> {
         useJUnitPlatform()
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compilerCompose.toString()
     }
 }
 
